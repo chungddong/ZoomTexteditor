@@ -1,5 +1,6 @@
 package com.example.editordel;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +48,20 @@ public class MemoRecyclerAdapter extends RecyclerView.Adapter<MemoRecyclerAdapte
 
             item_title = itemView.findViewById(R.id.item_title);
             item_content = itemView.findViewById(R.id.item_content);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    int position = getAdapterPosition(); //선택한 위치 값
+
+                    String uri = MainActivity.sharedUriList[position];
+
+                    Intent intent = new Intent(itemView.getContext(), MemoActivity.class);
+                    intent.putExtra("uri",uri);
+                    itemView.getContext().startActivity(intent);
+                }
+            });
 
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override

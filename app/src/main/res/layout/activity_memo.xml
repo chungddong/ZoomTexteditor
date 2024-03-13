@@ -33,6 +33,7 @@
 
 
         <com.example.editordel.ZoomEditText
+            android:id="@+id/et_memo_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="테스트 텍스트입니다."

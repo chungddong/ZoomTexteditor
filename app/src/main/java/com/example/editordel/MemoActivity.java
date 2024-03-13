@@ -1,11 +1,13 @@
 package com.example.editordel;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,15 +23,27 @@ public class MemoActivity extends AppCompatActivity implements View.OnTouchListe
     float fontsize = 13;
 
 
+    TextView tv_memo_title;
+    EditText et_memo_content;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_memo);
 
+
+        Intent secondIntent = getIntent();
+        String uri = secondIntent.getStringExtra("uri");
         /*tv_content = (EditText) findViewById(R.id.et_memo_content);
         tv_content.setTextSize(mRatio + 13);*/
 
+        tv_memo_title = findViewById(R.id.tv_memo_title);
+        et_memo_content = findViewById(R.id.et_memo_content);
+
+        Toast.makeText(this, "" + uri, Toast.LENGTH_SHORT).show();
+
+        
 
     }
 

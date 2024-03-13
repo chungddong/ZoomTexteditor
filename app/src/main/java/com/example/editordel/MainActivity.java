@@ -35,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
     MemoRecyclerAdapter rvAdapter;
     ArrayList<MemoListClass> items = new ArrayList<MemoListClass>();
 
+    FIleStorageManager fIleStorageManager;
+    public static String[] sharedUriList;
+
     FloatingActionButton fab;
     private static final int REQ_CODE = 123;
 
@@ -51,12 +54,10 @@ public class MainActivity extends AppCompatActivity {
 
         rv_main.setAdapter(rvAdapter);
         rv_main.setLayoutManager(new LinearLayoutManager(this));
-
-        items.add(new MemoListClass("메모 제목","안녕하세요 대충 제목을 이렇게 적으면 될것 같아요"));
-        items.add(new MemoListClass("메모 제목","안녕하세요 대충 제목을 이렇게 적으면 될것 같아sdfsdfsdfsfsfsdf요"));
+        fIleStorageManager = new FIleStorageManager();
 
 
-        rvAdapter.setList(items);
+        ResetList();
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,13 +70,15 @@ public class MainActivity extends AppCompatActivity {
 
                 startActivityForResult(Intent.createChooser(intent, "Select a file"), REQ_CODE);
 
-                /*Intent intent = new Intent(getApplicationContext(), MemoActivity.class);
-                startActivity(intent);*/
+
             }
         });
 
 
     }
+
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -84,20 +87,50 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQ_CODE && resultCode == RESULT_OK && data != null) {
             // 선택한 파일의 Uri를 가져옴
             if (data.getData() != null) {
+
                 // 여기에서 선택한 파일을 처리하는 로직을 추가할 수 있음
                 // 예를 들어, Uri를 사용하여 파일을 읽어오거나 처리할 수 있음
+
                 String selectedFileUri;
-                selectedFileUri = "content://com.android.providers.media.documents/document/document%3A1000009575";
-                //selectedFileUri = String.valueOf(data.getData());
-                Log.d("ZTE", "Selected file URI: " + getFileNameFromUri(getApplicationContext(), Uri.parse(selectedFileUri)));
-                try {
-                    Log.d("ZTE", "Selected file URI: " + readFileFromUri(getApplicationContext(), Uri.parse(selectedFileUri),30));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                selectedFileUri = data.getData().toString();
+
+                getContentResolver().takePersistableUriPermission(Uri.parse(selectedFileUri), Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+                fIleStorageManager.saveFileUri(getApplicationContext(), Uri.parse(selectedFileUri));
+
+                ResetList();
+
 
             }
         }
+    }
+
+    public void ResetList()
+    {
+        items.clear();
+
+        try {
+            sharedUriList = fIleStorageManager.getSavedFileUris(getApplicationContext());
+
+            for(int i = 0; i < sharedUriList.length; i++)
+            {
+                String title, content = "";
+                try {
+                    title = getFileNameFromUri(getApplicationContext(), Uri.parse(sharedUriList[i]));
+                    content = readFileFromUri(getApplicationContext(), Uri.parse(sharedUriList[i]), 50);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                items.add(new MemoListClass(title,content));
+            }
+            rvAdapter.setList(items);
+            rvAdapter.notifyDataSetChanged();
+        }
+        catch (Exception er)
+        {
+            Log.e("ZTE", "" + er);
+        }
+
     }
 
 
