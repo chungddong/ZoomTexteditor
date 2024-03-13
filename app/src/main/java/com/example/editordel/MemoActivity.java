@@ -1,8 +1,14 @@
 package com.example.editordel;
 
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -11,6 +17,11 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class MemoActivity extends AppCompatActivity implements View.OnTouchListener {
 
@@ -43,8 +54,57 @@ public class MemoActivity extends AppCompatActivity implements View.OnTouchListe
 
         Toast.makeText(this, "" + uri, Toast.LENGTH_SHORT).show();
 
-        
+        String title, content = "";
 
+
+        try {
+            title = getFileNameFromUri(getApplicationContext(), Uri.parse(uri));
+            content = readFileFromUri(getApplicationContext(), Uri.parse(uri));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        tv_memo_title.setText(title);
+        et_memo_content.setText(content);
+
+    }
+
+    public static String getFileNameFromUri(Context context, Uri uri) {
+        String fileName = null;
+        try {
+            if (uri.getScheme().equals("content")) {
+                ContentResolver contentResolver = context.getContentResolver();
+                Cursor cursor = contentResolver.query(uri, null, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (nameIndex != -1) {
+                        fileName = cursor.getString(nameIndex);
+                    }
+                    cursor.close();
+                }
+            } else if (uri.getScheme().equals("file")) {
+                fileName = uri.getLastPathSegment();
+            }
+        }
+        catch (Exception err)
+        {
+            Log.e("ZTE", err + "");
+        }
+        return fileName;
+    }
+
+    public static String readFileFromUri(Context context, Uri uri) throws IOException {
+        ContentResolver contentResolver = context.getContentResolver();
+        StringBuilder stringBuilder = new StringBuilder();
+        try (InputStream inputStream = contentResolver.openInputStream(uri);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+                stringBuilder.append('\n');
+            }
+        }
+        return stringBuilder.toString();
     }
 
     public boolean onTouchEvent(MotionEvent event) {
