@@ -2,6 +2,7 @@ package com.example.editordel;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -14,6 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
@@ -51,17 +54,33 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //Toast.makeText(getApplicationContext(),"fab 클릭", Toast.LENGTH_SHORT).show();
 
-                //Intent intent = new Intent().setType("*/*")
-                //        .setAction(Intent.ACTION_OPEN_DOCUMENT);
-                //intent.addCategory(Intent.CATEGORY_OPENABLE);
+                Intent intent = new Intent().setType("text/plain")
+                        .setAction(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
 
-                //startActivityForResult(Intent.createChooser(intent, "Select a file"), REQ_CODE);
+                startActivityForResult(Intent.createChooser(intent, "Select a file"), REQ_CODE);
 
-                Intent intent = new Intent(getApplicationContext(), MemoActivity.class);
-                startActivity(intent);
+                /*Intent intent = new Intent(getApplicationContext(), MemoActivity.class);
+                startActivity(intent);*/
             }
         });
 
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQ_CODE && resultCode == RESULT_OK && data != null) {
+            // 선택한 파일의 Uri를 가져옴
+            if (data.getData() != null) {
+                // 여기에서 선택한 파일을 처리하는 로직을 추가할 수 있음
+                // 예를 들어, Uri를 사용하여 파일을 읽어오거나 처리할 수 있음
+                String selectedFileUri;
+                selectedFileUri = String.valueOf(data.getData());
+                Log.d("ZTE", "Selected file URI: " + selectedFileUri);
+            }
+        }
     }
 }

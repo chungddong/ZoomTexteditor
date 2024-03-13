@@ -20,7 +20,7 @@ public class MemoActivity extends AppCompatActivity implements View.OnTouchListe
     float mBaseRatio;
     float fontsize = 13;
 
-    
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
